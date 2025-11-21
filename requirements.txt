@@ -5,3 +5,15 @@ pydantic>=2.9.0
 pymongo==4.6.0
 requests==2.31.0
 email-validator==2.1.0
+# PDF & Docs (pure-Python friendly)
+PyPDF2==3.0.1
+pdfplumber==0.11.4
+python-docx==1.1.2
+reportlab==4.2.2
+# Images
+Pillow==10.4.0
+# Spreadsheet (CSV -> XLSX)
+openpyxl==3.1.5
+# Testing
+pytest==8.3.2
+httpx==0.27.2

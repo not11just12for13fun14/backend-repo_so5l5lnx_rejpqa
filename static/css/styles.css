@@ -1,0 +1,8 @@
+/* Tailwind base via CDN or precompiled; add custom accents */
+:root { color-scheme: light dark; }
+body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+.glass { background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(99, 102, 241, 0.25); }
+.neon { box-shadow: 0 0 24px rgba(99,102,241,.25); }
+.thumb { transition: transform .2s ease, box-shadow .2s ease; }
+.thumb:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+.progress { height: 6px; background: linear-gradient(90deg,#6366F1,#22D3EE); border-radius: 9999px; }
