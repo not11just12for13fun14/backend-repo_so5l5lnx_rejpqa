@@ -146,17 +146,47 @@ def rotate_pages_task(src_pdf: str, degrees: int, pages: str, out_path: Path, jo
 # ---------- Compress ----------
 
 def compress_pdf_task(src_pdf: str, preset: str, out_path: Path, job_status):
+    """
+    Try to compress using Ghostscript if available (auto-detected),
+    otherwise perform a safe rewrite via PyPDF2.
+    Presets: low, medium, high (mapped to gs downsample settings).
+    """
     try:
+        import shutil, subprocess
         _update(job_status, "processing", "Compressing", 5)
-        # Baseline: rewrite file; for advanced compression integrate Ghostscript externally.
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        gs = shutil.which('gs') or shutil.which('ghostscript')
+        if gs:
+            # Map presets to quality
+            preset = (preset or 'medium').lower()
+            quality_map = {
+                'low': '/screen',
+                'medium': '/ebook',
+                'high': '/printer',
+                'max': '/prepress'
+            }
+            pdfsettings = quality_map.get(preset, '/ebook')
+            cmd = [
+                gs, '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.4',
+                f'-dPDFSETTINGS={pdfsettings}', '-dNOPAUSE', '-dQUIET', '-dBATCH',
+                f'-sOutputFile={str(out_path)}', str(src_pdf)
+            ]
+            try:
+                subprocess.run(cmd, check=True)
+                _update(job_status, "done", f"Compressed with Ghostscript ({preset})", 100)
+                return
+            except Exception as e:
+                # Fall back to pure Python
+                _update(job_status, "processing", f"GS failed, fallback: {e}")
+        # Fallback: rewrite using PyPDF2
         reader = PdfReader(src_pdf)
         writer = PdfWriter()
         for page in reader.pages:
             writer.add_page(page)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, 'wb') as f:
             writer.write(f)
-        _update(job_status, "done", f"Compressed ({preset})", 100)
+        _update(job_status, "done", f"Compressed (fallback: {preset})", 100)
     except Exception as e:
         _update(job_status, "error", str(e))
 
